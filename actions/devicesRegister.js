@@ -1,3 +1,5 @@
+var moment = require('moment');
+
 exports.action = {
   name:                   'devicesRegister',
   description:            'Register active devices in the network based on the arp -a list',
@@ -42,9 +44,13 @@ exports.action = {
   },
 
   run: function(api, data, next){
-    var error = null;
+    var now = new Date();
 
+    data.params.arplist.forEach(function(device){
+      api.tracker.deviceCreateOrUpdate(device.mac, device);
+      api.tracker.sessionRegister(device.mac, now, moment(now).add(device.expireSec || 45, 'seconds').toDate());
+    });
 
-    next(error);
+    next();
   }
 };

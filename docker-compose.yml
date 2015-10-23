@@ -1,0 +1,14 @@
+web:
+  build: .
+  links:
+    - db
+  ports:
+    - "8080:8080"
+  volumes:
+    - ".:/usr/src/app"
+  environment:
+    - MONGO_URL=mongodb://db/hackafe
+db:
+  image: mongo:2
+  ports:
+    - "27017:27017"
