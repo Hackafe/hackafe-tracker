@@ -2,14 +2,14 @@ exports.default = {
   general: function(api){
     return {
       apiVersion: '0.0.1',
-      serverName: 'actionhero API',
+      serverName: 'hackafe-sys2',
       // id can be set here, or it will be generated dynamically.
       //  Be sure that every server you run has a unique ID (which will happen when generated dynamically)
       //  id: 'myActionHeroServer',
       // A unique token to your application that servers will use to authenticate to each other
       serverToken: 'change-me',
       // The welcome message seen by TCP and webSocket clients upon connection
-      welcomeMessage: 'Hello! Welcome to the actionhero api',
+      welcomeMessage: 'Hello! Welcome Hackafe System api',
       // the redis prefix for actionhero's cache objects
       cachePrefix: 'actionhero:cache:',
       // the redis prefix for actionhero's cache/lock objects
@@ -19,7 +19,7 @@ exports.default = {
       // Watch for changes in actions and tasks, and reload/restart them on the fly
       developmentMode: true,
       // Should we run each action within a domain? Makes your app safer but slows it down
-      actionDomains: true,
+      actionDomains: false,
       // How many pending actions can a single connection be working on
       simultaneousActions: 5,
       // allow connections to be created without remoteIp and remotePort (they will be set to 0)
@@ -49,8 +49,8 @@ exports.default = {
       startingChatRooms: {
         // format is {roomName: {authKey, authValue}}
         //'secureRoom': {authorized: true},
-        'defaultRoom': {},
-        'anotherRoom': {},
+        //'defaultRoom': {},
+        //'anotherRoom': {},
       }
     }
   }
