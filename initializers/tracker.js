@@ -30,11 +30,18 @@ module.exports = {
         this.devices.deleteOne({mac:mac}, next);
       },
       deviceCreateOrUpdate: function(mac, data, next) {
-        this.devices.updateOne({mac: mac}, {$set: {data: data}}, {upsert: true}, next);
+        api.log('creating device '+mac+': '+data, 'info');
+        this.devices.updateOne({mac: mac}, {$set: {data: data}}, {upsert: true}, function(err, r){
+            if (err) {
+                api.log(err+' error creating device', 'error');
+            }
+            api.log(r+' result creating device', 'info');
+            if (next) next(err, r);
+        });
       },
       // sessions
       sessionRegister: function(mac, start, end, next) {
-        api.log('registering session for '+mac+': '+start+' '+end);
+        api.log('registering session for '+mac+': '+start+' '+end, 'info');
         return this.sessions.updateOne({
           mac: mac,
           end: {$gte: start}
@@ -43,10 +50,16 @@ module.exports = {
           $max: {end: end}
         }, {
           upsert: true
-        }, next);
+        }, function(err, r) {
+            if (err) {
+                api.log(err+' error registering session', 'error');
+            }
+            api.log(r+' result registering session', 'info');
+            if (next) next(err, r);
+        });
       },
-      sessionsList: function(mac, next) {if (next) next()},
-      sessionDelete: function(mac, sessionId, next) {if (next) next()},
+      sessionsList: function(mac, next) {if (next) next();},
+      sessionDelete: function(mac, sessionId, next) {if (next) next();},
       // helpers
       buildDeviceKey: function(mac) {
         return this.devicePrefix + this.separator + mac;
@@ -69,6 +82,9 @@ module.exports = {
       }
       next();
     });
+    api.tracker.sessions.createIndexes([
+      {key: {mac: 1, start: -1}, background: true}
+    ]);
   },
   stop: function(api, next){
     next();
