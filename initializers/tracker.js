@@ -33,9 +33,17 @@ module.exports = {
         this.devices.updateOne({mac: mac}, {$set: {data: data}}, {upsert: true}, next);
       },
       // sessions
-      sessionRegister: function(mac, start, finish, next) {
-        api.log('registering session for '+mac+' start '+start+' '+finish);
-        if (next) next();
+      sessionRegister: function(mac, start, end, next) {
+        api.log('registering session for '+mac+': '+start+' '+end);
+        return this.sessions.updateOne({
+          mac: mac,
+          end: {$gte: start}
+        }, {
+          $min: {start: start},
+          $max: {end: end}
+        }, {
+          upsert: true
+        }, next);
       },
       sessionsList: function(mac, next) {if (next) next()},
       sessionDelete: function(mac, sessionId, next) {if (next) next()},
