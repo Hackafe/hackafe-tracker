@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "mocha": "latest",
+    "parallelshell": "latest",
     "should": "latest"
   },
   "scripts": {
@@ -23,6 +24,10 @@
     "start": "actionhero start",
     "actionhero": "actionhero",
     "startCluster": "actionhero startCluster",
-    "test": "mocha"
+    "test": "mocha",
+    "mongo": "docker start hackafe_db",
+    "mongo-create": "docker run -dp 27017:27017 --name=hackafe_db mongo",
+    "mongo-stop": "docker stop hackafe_db",
+    "dev": "parallelshell 'npm run mongo' 'npm start'"
   }
 }

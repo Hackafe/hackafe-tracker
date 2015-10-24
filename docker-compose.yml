@@ -9,6 +9,6 @@ web:
   environment:
     - MONGO_URL=mongodb://db/hackafe
 db:
-  image: mongo:2
+  image: mongo
   ports:
     - "27017:27017"
