@@ -1,6 +1,6 @@
 var moment = require('moment');
 
-exports.action = {
+exports.devicesRegister = {
   name:                   'devicesRegister',
   description:            'Register active devices in the network based on the arp -a list',
   blockedConnectionTypes: [],
