@@ -58,6 +58,12 @@ module.exports = {
             if (next) next(err, r);
         });
       },
+      sessionsAt: function(time, next) {
+        this.devices.find({
+          start: {$lte: time},
+          end: {$gte: time}
+        }).toArray(next);
+      },
       sessionsList: function(mac, next) {if (next) next();},
       sessionDelete: function(mac, sessionId, next) {if (next) next();},
       // helpers
