@@ -143,7 +143,13 @@ exports.currentDevice = {
                 if (data.params.sessions) {
                     api.tracker.deviceSessions(device.mac, function(err, sessions) {
                         if (err) return next(err);
-                        data.response.sessions = sessions;
+                        data.response.sessions = sessions.map(function(session){
+                            return {
+                                start: session.start,
+                                end: session.end,
+                                duration_minutes: moment.duration(moment(session.end).diff(moment(session.start))).asMinutes(),
+                            }
+                        });
 
                         next();
                     });
