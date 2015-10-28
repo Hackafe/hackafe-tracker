@@ -16,6 +16,7 @@ module.exports = {
 
         var url = config.url || 'mongodb://' + config.user + ":" + config.pass + "@" + config.host + ':' + config.port + '/' + config.db;
 
+        api.log('connecting to '+url, 'info');
         api.mongo.client.connect(url, function (err, db) {
             if (err) {
                 api.log(err + "error in mongoDB connection", "error");
