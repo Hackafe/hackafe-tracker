@@ -60,8 +60,8 @@ module.exports = {
       },
       sessionsAt: function(time, next) {
         this.devices.find({
-          start: {$lte: time},
-          end: {$gte: time}
+          start: {$lte: new Date(time)},
+          end: {$gte: new Date(time)}
         }).toArray(next);
       },
       sessionsList: function(mac, next) {if (next) next();},
