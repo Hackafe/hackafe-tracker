@@ -26,7 +26,7 @@ module.exports = {
       deviceGetByIp: function(ip, next) {
         this.devices
             .find({"data.ip": ip})
-            .sort(['_updated', -1])
+            .sort({_updated: -1})
             .limit(1)
             .next(function (err, device) {
                 if (err) {
@@ -115,7 +115,7 @@ module.exports = {
         });
       },
       deviceSessions: function(mac, next) {
-          this.sessions.find({mac: mac}).sort(['end', -1]).toArray(function(err, sessions){
+          this.sessions.find({mac: mac}).sort({end: -1}).toArray(function(err, sessions){
               if (err) {
                   api.log(err+' could not query sessions for device '+mac, 'error');
                   return next(err);
