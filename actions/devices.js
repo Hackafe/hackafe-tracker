@@ -103,7 +103,32 @@ exports.currentDevice = {
         since: "2012-04-23T18:25:43.511Z",
         hostname: "strange-ties"
     },
+    inputs: {
+        sessions: {
+            required: false,
+            validator: function (param) {
+                if (typeof param !== 'boolean')
+                return new Error("sessions should be one of 'true'/'yes'/'1' or 'false'/'no'/'0'");
+                return true;
+            },
+            formatter: function (param) {
+                if (!param) return false;
+                param = param.charAt(0).toUpperCase();
+                switch (param) {
+                    case 'T':
+                    case 'Y':
+                    case '1':
+                        return true;
+                    case 'F':
+                    case 'N':
+                    case '0':
+                        return false;
+                }
+            }
+        }
+    },
     run: function (api, data, next) {
+        data.connection.remoteIP = '192.168.1.130';
         api.tracker.deviceGetByIp(data.connection.remoteIP, function (err, device) {
             if (err) return next(err);
             if (!device) {
@@ -113,10 +138,18 @@ exports.currentDevice = {
             data.response.hostname = device.data.hostname;
 
             api.tracker.sessionAt(device.mac, new Date(), function (err, session) {
-                if (err) return next(err);
-                data.response.since = session.start;
+                if (!err) data.response.since = session.start;
 
-                next();
+                if (data.params.sessions) {
+                    api.tracker.deviceSessions(device.mac, function(err, sessions) {
+                        if (err) return next(err);
+                        data.response.sessions = sessions;
+
+                        next();
+                    });
+                } else {
+                    next();
+                }
             });
         });
     }
