@@ -11,12 +11,6 @@ module.exports = {
       devicePrefix: 'device',
       sessionPrefix: 'session',
       // devices
-      deviceCreate: function(mac, data, next) {
-        this.devices.insertOne({
-          mac: mac,
-          data: data
-        }, next);
-      },
       deviceGet: function(mac, next) {
         this.devices.find({mac:mac}).limit(1).next(next);
       },
@@ -29,18 +23,22 @@ module.exports = {
           next(err, devices);
         });
       },
+      deviceGetByIp: function(ip, next) {
+        this.devices.find({data:{ip: ip}}).limit(1).next(next);
+      },
       devicesList: function(next) {
         this.devices.find().toArray(next);
       },
-      deviceUpdate: function(mac, data, next) {
-        this.devices.updateOne({mac: mac}, {$set: {data: data}}, next);
-      },
-      deviceDelete: function(mac, next) {
-        this.devices.deleteOne({mac:mac}, next);
-      },
       deviceCreateOrUpdate: function(mac, data, next) {
         api.log('creating device '+mac+': '+data, 'info');
-        this.devices.updateOne({mac: mac}, {$set: {data: data}}, {upsert: true}, function(err, r){
+        this.devices.updateOne({mac: mac}, {
+            $set: {
+                data: data,
+                _updated: new Date()
+            },
+            $setOnInsert: {
+                _created: new Date()
+            }}, {upsert: true}, function(err, r){
             if (err) {
                 api.log(err+' error creating device', 'error');
             }
