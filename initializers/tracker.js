@@ -24,7 +24,22 @@ module.exports = {
         });
       },
       deviceGetByIp: function(ip, next) {
-        this.devices.find({data:{ip: ip}}).limit(1).next(next);
+        this.devices
+            .find({"data.ip": ip})
+            .sort('_updated', -1)
+            .limit(1)
+            .next(function (err, device) {
+                if (err) {
+                    api.log(err+' while searching device with ip '+ip, 'error');
+                    return next(err);
+                }
+                if (!device) {
+                    err = 'Could not find device with ip '+ip;
+                    api.log(err, 'error');
+                    return next(err);
+                }
+                next(null, device);
+            });
       },
       devicesList: function(next) {
         this.devices.find().toArray(next);
@@ -65,6 +80,27 @@ module.exports = {
             if (next) next(err, r);
         });
       },
+      sessionAt: function (mac, time, next) {
+          var q = {
+              mac: mac,
+              start: {$lte: time},
+              end: {$gte: time}
+          };
+          api.log('mac='+mac, 'info');
+          api.log('time='+time, 'info');
+          this.sessions.find(q).limit(1).next(function(err, session) {
+              if (err) {
+                  api.log(err+' could not query session', 'error');
+                  return next(err);
+              }
+              if (!session) {
+                  err = "Could not find session for "+mac+" at "+time;
+                  api.log(err, 'error');
+                  return next(err);
+              }
+              next(null, session);
+          });
+      },
       sessionsAt: function(time, next) {
         var q = {
           start: {$lte: time},
@@ -77,12 +113,6 @@ module.exports = {
           api.log('sessions: '+JSON.stringify(sessions), 'debug');
           next(err, sessions);
         });
-      },
-      sessionsList: function(mac, next) {if (next) next();},
-      sessionDelete: function(mac, sessionId, next) {if (next) next();},
-      // helpers
-      buildDeviceKey: function(mac) {
-        return this.devicePrefix + this.separator + mac;
       }
     };
 
@@ -95,6 +125,9 @@ module.exports = {
     api.tracker.devices.createIndexes([{
       key: {mac: 1},
       unique: true
+    }, {
+        key: {"data.ip": 1, _updated: -1},
+        background: true
     }], function(err) {
       if (err) {
         api.log(err+' error creating unique index on devices', 'error');
@@ -103,7 +136,7 @@ module.exports = {
       next();
     });
     api.tracker.sessions.createIndexes([
-      {key: {mac: 1, start: -1}, background: true}
+      {key: {mac: 1, start: -1, end: 1}, background: true}
     ]);
   },
   stop: function(api, next){

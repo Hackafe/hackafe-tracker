@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "actionhero": "12.1.2",
-    "arp": "0.0.1",
     "grunt": "latest",
     "moment": "^2.10.6",
     "mongodb": "^2.0.46",

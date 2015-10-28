@@ -104,25 +104,19 @@ exports.currentDevice = {
         hostname: "strange-ties"
     },
     run: function (api, data, next) {
-        console.log(data.connection.remoteIP);
-        api.arp.getMAC(data.connection.remoteIP, function (error, mac) {
-            if (error) {
-                api.log(error + " can't resolve ip " + data.connection.remoteIP, 'error');
-                return next(error);
+        api.tracker.deviceGetByIp(data.connection.remoteIP, function (err, device) {
+            if (err) return next(err);
+            if (!device) {
+                return next('Could not find ' + data.connection.remoteIP);
             }
-            api.log('resolved ' + data.connection.remoteIP + ' to ' + mac, 'info');
+            data.response.mac = device.mac;
+            data.response.hostname = device.data.hostname;
 
-            api.devices.deviceGet(mac, function (err, device) {
+            api.tracker.sessionAt(device.mac, new Date(), function (err, session) {
                 if (err) return next(err);
-                data.response.mac = device.mac;
-                data.response.hostname = device.data.hostname;
+                data.response.since = session.start;
 
-                api.devices.sessionAt(mac, new Date(), function (err, session) {
-                    if (err) return next(err);
-                    data.response.since = session.start;
-
-                    next();
-                });
+                next();
             });
         });
     }
