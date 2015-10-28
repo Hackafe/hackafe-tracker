@@ -76,7 +76,7 @@ exports.devicesOnline = {
         api.tracker.sessionsAt(Date.now(), function (err, sessions) {
             if (err) return next(err);
 
-            var pending = data.response.devices.length;
+            var pending = sessions.length;
             data.response.devices = sessions.map(function (session) {
                 var obj = {mac: session.mac, since: session.start};
                 api.tracker.deviceGet(session.mac, function (err, device) {
