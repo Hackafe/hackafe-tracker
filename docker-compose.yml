@@ -7,7 +7,7 @@ web:
   volumes:
     - ".:/usr/src/app"
   environment:
-    - MONGO_URL=mongodb://db/hackafe
+    - MONGO_URL=mongodb://db/tracker-db
 db:
   image: mongo
   ports:
