@@ -21,7 +21,13 @@ module.exports = {
         this.devices.find({mac:mac}).limit(1).next(next);
       },
       devicesGet: function(macs, next) {
-        this.devices.find({mac: {$in: macs}}).toArray(next);
+        api.log('retrieving devices: '+JSON.stringify(macs), 'info');
+        this.devices.find({mac: {$in: macs}}).toArray(function(err, devices) {
+          if (err) api.log(err+' error retrieving devices', 'error');
+          if (devices) api.log('devices: '+devices.length, 'info');
+          api.log('devices: '+JSON.stringify(devices), 'debug');
+          next(err, devices);
+        });
       },
       devicesList: function(next) {
         this.devices.find().toArray(next);
@@ -62,10 +68,17 @@ module.exports = {
         });
       },
       sessionsAt: function(time, next) {
-        this.devices.find({
-          start: {$lte: new Date(time)},
-          end: {$gte: new Date(time)}
-        }).toArray(next);
+        var q = {
+          start: {$lte: time},
+          end: {$gte: time}
+        };
+        api.log('time='+time, 'info');
+        this.sessions.find(q).toArray(function(err, sessions) {
+          if (err) api.log(err+' could not query sessions', 'error');
+          if (sessions) api.log('sessions: '+sessions.length, 'info');
+          api.log('sessions: '+JSON.stringify(sessions), 'debug');
+          next(err, sessions);
+        });
       },
       sessionsList: function(mac, next) {if (next) next();},
       sessionDelete: function(mac, sessionId, next) {if (next) next();},

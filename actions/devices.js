@@ -73,22 +73,23 @@ exports.devicesOnline = {
     inputs: {},
 
     run: function (api, data, next) {
-        api.tracker.sessionsAt(Date.now(), function (err, sessions) {
+        api.tracker.sessionsAt(new Date(), function (err, sessions) {
             if (err) return next(err);
 
             data.response.devices = sessions.map(function (session) {
                 return {mac: session.mac, since: session.start};
             });
 
-            api.tracker.devicesGet(sessions.map(function (session) {
+            var macs = sessions.map(function (session) {
                 return session.mac;
-            }), function (err, devices) {
+            });
+            api.tracker.devicesGet(macs, function (err, devices) {
                 if (err) return next(err);
 
                 data.response.devices.forEach(function (result) {
                     for (var i = 0, l = devices.length; i < l; i++) {
                         if (devices[i].mac == result.mac) {
-                            result.hostname = devices[i].hostname;
+                            result.hostname = devices[i].data.hostname;
                             devices.splice(i, 1);
                             break;
                         }
