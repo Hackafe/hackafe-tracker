@@ -3,12 +3,8 @@ var moment = require('moment');
 exports.devicesRegister = {
     name: 'devicesRegister',
     description: 'Register active devices in the network based on the arp -a list',
-    blockedConnectionTypes: [],
-    outputExample: {},
-    matchExtensionMimeType: false,
     version: 1.0,
     toDocument: true,
-    middleware: [],
 
     inputs: {
         arplist: {
@@ -58,19 +54,14 @@ exports.devicesRegister = {
 exports.devicesOnline = {
     name: 'devicesOnline',
     description: 'Display list of devices currently online',
-    blockedConnectionTypes: [],
     outputExample: {
         devices: [
             {mac: "00-17-31-9B-00-7Е", since: "2012-04-23T18:25:43.511Z", hostname: "strange-ties"},
             {mac: "00-17-31-9B-00-8Е", since: "2014-04-23T18:25:43.511Z", hostname: "ties-strange"}
         ]
     },
-    matchExtensionMimeType: false,
     version: 1.0,
     toDocument: true,
-    middleware: [],
-
-    inputs: {},
 
     run: function (api, data, next) {
         api.tracker.sessionsAt(new Date(), function (err, sessions) {
@@ -97,6 +88,41 @@ exports.devicesOnline = {
                 });
 
                 next();
+            });
+        });
+    }
+};
+
+exports.currentDevice = {
+    name: "currentDevice",
+    description: "provides information for current device",
+    version: 1.0,
+    toDocument: true,
+    outputExample: {
+        mac: "00-17-31-9B-00-7Е",
+        since: "2012-04-23T18:25:43.511Z",
+        hostname: "strange-ties"
+    },
+    run: function (api, data, next) {
+        console.log(data.connection.remoteIP);
+        api.arp.getMAC(data.connection.remoteIP, function (error, mac) {
+            if (error) {
+                api.log(error + " can't resolve ip " + data.connection.remoteIP, 'error');
+                return next(error);
+            }
+            api.log('resolved ' + data.connection.remoteIP + ' to ' + mac, 'info');
+
+            api.devices.deviceGet(mac, function (err, device) {
+                if (err) return next(err);
+                data.response.mac = device.mac;
+                data.response.hostname = device.data.hostname;
+
+                api.devices.sessionAt(mac, new Date(), function (err, session) {
+                    if (err) return next(err);
+                    data.response.since = session.start;
+
+                    next();
+                });
             });
         });
     }
