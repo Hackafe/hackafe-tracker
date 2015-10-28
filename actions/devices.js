@@ -76,17 +76,26 @@ exports.devicesOnline = {
         api.tracker.sessionsAt(Date.now(), function (err, sessions) {
             if (err) return next(err);
 
-            var pending = sessions.length;
             data.response.devices = sessions.map(function (session) {
-                var obj = {mac: session.mac, since: session.start};
-                api.tracker.deviceGet(session.mac, function (err, device) {
-                    pending--;
-                    if (!err) {
-                        obj.hostname = device.data.hostname;
+                return {mac: session.mac, since: session.start};
+            });
+
+            api.tracker.devicesGet(sessions.map(function (session) {
+                return session.mac;
+            }), function (err, devices) {
+                if (err) return next(err);
+
+                data.response.devices.forEach(function (result) {
+                    for (var i = 0, l = devices.length; i < l; i++) {
+                        if (devices[i].mac == result.mac) {
+                            result.hostname = devices[i].hostname;
+                            devices.splice(i, 1);
+                            break;
+                        }
                     }
-                    if (pending <= 0) next();
                 });
-                return obj;
+
+                next();
             });
         });
     }

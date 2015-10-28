@@ -20,6 +20,9 @@ module.exports = {
       deviceGet: function(mac, next) {
         this.devices.find({mac:mac}).limit(1).next(next);
       },
+      devicesGet: function(macs, next) {
+        this.devices.find({mac: {$in: macs}}).toArray(next);
+      },
       devicesList: function(next) {
         this.devices.find().toArray(next);
       },
