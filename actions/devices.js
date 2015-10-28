@@ -48,7 +48,7 @@ exports.devicesRegister = {
 
         data.params.arplist.forEach(function (device) {
             api.tracker.deviceCreateOrUpdate(device.mac, device);
-            api.tracker.sessionRegister(device.mac, now, moment(now).add(device.expireSec || 45, 'seconds').toDate());
+            api.tracker.sessionRegister(device.mac, now, moment(now).add(device.expireSec || 45, 'seconds').add(120, 'seconds').toDate());
         });
 
         next();
