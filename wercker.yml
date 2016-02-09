@@ -9,7 +9,8 @@ build:
           echo "npm version $(npm -v) running"
 
     - npm-install
-    - npm-test
+    # disable tests for now because we don't have any
+    #- npm-test
 
 
 deploy:
