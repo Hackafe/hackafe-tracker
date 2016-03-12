@@ -129,7 +129,8 @@ exports.currentDevice = {
     },
     run: function (api, data, next) {
         var headers = data.connection.rawConnection.req.headers;
-        api.tracker.deviceGetByIp(data.connection.remoteIP, function (err, device) {
+        var ipAddress = headers['x-forwarded-for'] || data.connection.remoteIP
+        api.tracker.deviceGetByIp(ipAddress, function (err, device) {
             if (err) return next(err);
             if (!device) {
                 return next('Could not find ' + data.connection.remoteIP);
