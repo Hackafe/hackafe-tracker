@@ -128,6 +128,7 @@ exports.currentDevice = {
         }
     },
     run: function (api, data, next) {
+        var headers = data.connection.rawConnection.req.headers;
         api.tracker.deviceGetByIp(data.connection.remoteIP, function (err, device) {
             if (err) return next(err);
             if (!device) {
@@ -147,6 +148,7 @@ exports.currentDevice = {
                                 start: session.start,
                                 end: session.end,
                                 duration_minutes: moment.duration(moment(session.end).diff(moment(session.start))).asMinutes(),
+                                client_headers: headers,
                             };
                         });
 
