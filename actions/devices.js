@@ -27,9 +27,9 @@ exports.devicesRegister = {
                         interface: cols[5],
                         expireSec: cols[8],
                         medium: cols[10].substr(1, cols[10].length - 2)
-                    }
+                    };
                 }).filter(function (item) {
-                    return !!item
+                    return !!item;
                 });
 
                 console.log('parsed ', list);
@@ -128,7 +128,6 @@ exports.currentDevice = {
         }
     },
     run: function (api, data, next) {
-        data.connection.remoteIP = '192.168.1.130';
         api.tracker.deviceGetByIp(data.connection.remoteIP, function (err, device) {
             if (err) return next(err);
             if (!device) {
@@ -148,7 +147,7 @@ exports.currentDevice = {
                                 start: session.start,
                                 end: session.end,
                                 duration_minutes: moment.duration(moment(session.end).diff(moment(session.start))).asMinutes(),
-                            }
+                            };
                         });
 
                         next();
