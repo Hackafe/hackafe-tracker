@@ -136,6 +136,7 @@ exports.currentDevice = {
             }
             data.response.mac = device.mac;
             data.response.hostname = device.data.hostname;
+            data.response.client_headers = headers;
 
             api.tracker.sessionAt(device.mac, new Date(), function (err, session) {
                 if (!err) data.response.since = session.start;
@@ -148,7 +149,6 @@ exports.currentDevice = {
                                 start: session.start,
                                 end: session.end,
                                 duration_minutes: moment.duration(moment(session.end).diff(moment(session.start))).asMinutes(),
-                                client_headers: headers,
                             };
                         });
 
